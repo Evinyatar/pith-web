@@ -1,0 +1,118 @@
+@import "./colors";
+
+$navbar-clear-color: black;
+$navbar-width: 300px;
+
+body {
+  padding-top: 60px;
+  color: $text-color;
+
+  &:before {
+    display: block;
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: $page-background;
+    z-index: -1;
+  }
+}
+
+.c-navBar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  height: 100vh;
+  width: $navbar-width;
+  background: $nav-bar-background;
+  color: $nav-bar-item-color;
+  padding: 15px;
+  z-index: 200;
+  backdrop-filter: blur(10px);
+  box-shadow: -4px 0px 10px 10px rgba(0, 0, 0, 0.5);
+
+  &:not(.dragging) {
+    transition: left 200ms ease-in-out;
+  }
+
+  &.closed:not(.dragging) {
+    box-shadow: none;
+  }
+
+  &.closed {
+    left: -$navbar-width;
+  }
+
+  ul {
+    padding-left: 0;
+  }
+
+  .c-navBar__group {
+    text-transform: uppercase;
+    font-size: 16px;
+    list-style: none;
+    margin-bottom: 15px;
+    color: $nav-bar-group-color;
+  }
+
+  .c-navBar__item {
+    text-transform: none;
+    font-size: 24px;
+    list-style: none;
+
+    a {
+      color: $nav-bar-item-color;
+    }
+  }
+
+  .c-navBar__closeBtn {
+    display: block;
+    text-align: right;
+    cursor: pointer;
+  }
+}
+
+.c-statusBar__playbackArea {
+  display: grid;
+  grid-template-columns: min-content minmax(100px, 1fr) min-content;
+  grid-template-areas: "title title title" "position bar duration";
+
+  .playback-title {
+    grid-area: title;
+    font-weight: bold;
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .playback-time {
+    grid-area: position;
+  }
+
+  .playback-time, .playback-runtime {
+    display: inline-block;
+    width: 40px;
+    font-size: 10px;
+  }
+
+  .playback-runtime {
+    grid-area: duration;
+    text-align: right;
+  }
+
+  .playback-bar {
+    grid-area: bar;
+
+    scrubber {
+      flex: 1;
+    }
+
+    .progress {
+      height: 10px;
+    }
+  }
+}

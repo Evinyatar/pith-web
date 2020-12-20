@@ -1,0 +1,79 @@
+//colors
+$black: black;
+$white: white;
+$color_red: rgb(200, 0, 0);
+$color_highlight: rgb(255, 200, 0);
+$color_shadow: rgba(0, 0, 0, 0.2);
+$color_glare: rgba(255, 255, 255, 0.8);
+$color_storm_dust_approx: #666;
+$color_fuscous_gray_approx: #555;
+$white_50: rgba(255, 255, 255, 0.5);
+
+%playstatus {
+  font-family: 'Icons';
+  font-size: 14px;
+  opacity: 1;
+  display: block;
+  content: '';
+  border: 1px solid $black;
+  width: 26px;
+  height: 26px;
+  position: absolute;
+  border-radius: 15px;
+  border: 2px solid $white;
+  background-color: $color_red;
+  box-shadow: 0 -5px 4px $color_shadow inset, 0 3px 4px $color_glare inset, 0 2px 4px $black;
+  color: $white;
+  text-align: center;
+  z-index: 5;
+  padding-top: 2px;
+}
+
+%playstatus_watched {
+  @extend %playstatus;
+  content: '\e033';
+}
+
+%playstatus_inprogress {
+  @extend %playstatus;
+  content: '\e092';
+}
+
+%playstatus_hasnew {
+  @extend %playstatus;
+  content: '\e0c2';
+  color: $black;
+  background-color: $color_highlight;
+}
+
+%action {
+  cursor: pointer;
+}
+
+.action-markwatched {
+  @extend %action;
+}
+
+.action-play {
+  @extend %action;
+  @extend .oi;
+  @extend .oi-media-play;
+}
+
+
+// bootstrap fixes
+.dropdown {
+  white-space: nowrap;
+}
+
+.closebtn {
+  cursor: pointer;
+}
+
+.btn-group > .btn:not(:first-child) {
+  border-left: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.u-cursor__pointer {
+  cursor: pointer;
+}

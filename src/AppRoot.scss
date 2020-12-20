@@ -1,0 +1,35 @@
+/* You can add global styles to this file, and also import other style files */
+
+$card-cap-bg: black;
+$card-bg: rgb(30, 30, 30);
+$list-group-bg: $card-bg;
+$nav-tabs-link-active-bg: transparent;
+$nav-tabs-border-color: rgb(100, 100, 100);
+$nav-tabs-link-active-border-color: $nav-tabs-border-color;
+$nav-tabs-link-hover-border-color: rgb(100, 100, 100);
+$nav-tabs-link-active-color: white;
+$modal-content-bg: rgb(30, 30, 30);
+$close-color: white;
+
+$icon-font-path: '~bootstrap-sass/assets/fonts/bootstrap/';
+
+@import '~bootstrap/scss/bootstrap';
+
+$icon-font-path: '~open-iconic/font/fonts/';
+
+@import '~open-iconic/font/css/open-iconic-bootstrap';
+
+.pith-logo > svg {
+  width: 37px;
+  height: 37px;
+}
+
+@import "styles/common";
+@import "styles/poster";
+@import "styles/navbar";
+@import "styles/styles";
+@import "styles/video";
+@import "styles/page";
+@import "styles/detailpage";
+@import "styles/details";
+@import "styles/channelnav";
