@@ -9,6 +9,7 @@ import {prescale} from "../util/prescale";
 import '../AppRoot.scss';
 import {PlayerTimeControl} from "./PlayerTimeControl";
 import {PlayerControl} from "./PlayerControl";
+import {SwipeIn} from "../util/SwipeIn";
 
 export interface AppRootState {
     status?: PlayerStatus
@@ -28,7 +29,7 @@ export class AppRoot extends Component<any, AppRootState> {
     constructor(props: any) {
         super(props);
         this.state = {
-            navbarExpanded: true,
+            navbarExpanded: false,
             statusbarExpanded: false,
             loading: false,
             activePlayer: null,
@@ -75,11 +76,12 @@ export class AppRoot extends Component<any, AppRootState> {
                 <a className="c-statusBar__sidebarToggle u-borderlessButton"
                    onClick={() => this.toggleNavBar()}><span className="oi oi-menu"></span></a>
 
-                { this.state.activePlayer && <PlayerControl player={this.state.activePlayer}></PlayerControl>}
-
                 {
                     this.state.activePlayer ?
-                        <PlayerTimeControl player={this.state.activePlayer}></PlayerTimeControl>
+                        <>
+                            <PlayerControl player={this.state.activePlayer}></PlayerControl>
+                            <PlayerTimeControl player={this.state.activePlayer}></PlayerTimeControl>
+                        </>
                         :
                         <div className="c-statusBar__playbackArea c-statusBar__playbackArea--noplayer">
                             No player selected
@@ -107,10 +109,13 @@ export class AppRoot extends Component<any, AppRootState> {
                 <div className="c-statusBar__expandButton u-borderlessButton">
                     <i className={classNames("oi", this.state.statusbarExpanded ? "oi-chevron-top" : "oi-chevron-bottom")}></i>
                 </div>
+            </div>
 
-                <div className={classNames("c-navBar", {
-                    closed: this.state.navbarExpanded
-                })}>
+            <SwipeIn
+                expanded={this.state.navbarExpanded}
+                onChange={ (expanded) => this.setState({navbarExpanded: expanded}) }
+                target={
+                <div className="c-navBar">
                     <a className="c-navBar__closeBtn" onClick={() => this.toggleNavBar()}><i className="oi oi-chevron-left"></i></a>
                     <ul>
                         <li className="c-navBar__group">Channels
@@ -129,7 +134,11 @@ export class AppRoot extends Component<any, AppRootState> {
                         </li>
                     </ul>
                 </div>
-            </div>
+            }>
+                <div className="page-host">
+
+                </div>
+            </SwipeIn>
         </div>;
     }
 }

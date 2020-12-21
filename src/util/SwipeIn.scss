@@ -1,0 +1,16 @@
+.c-swipeIn {
+  position: fixed;
+  right: 100%;
+  top: 0;
+  bottom: 0;
+  width: min-content;
+
+  &.expanded {
+    right: auto;
+    left: 0;
+  }
+
+  &:not(.dragging) {
+    transition: left 200ms ease-in-out;
+  }
+}

@@ -21,10 +21,6 @@ body {
 }
 
 .c-navBar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
   height: 100vh;
   width: $navbar-width;
   background: $nav-bar-background;
@@ -33,18 +29,6 @@ body {
   z-index: 200;
   backdrop-filter: blur(10px);
   box-shadow: -4px 0px 10px 10px rgba(0, 0, 0, 0.5);
-
-  &:not(.dragging) {
-    transition: left 200ms ease-in-out;
-  }
-
-  &.closed:not(.dragging) {
-    box-shadow: none;
-  }
-
-  &.closed {
-    left: -$navbar-width;
-  }
 
   ul {
     padding-left: 0;
