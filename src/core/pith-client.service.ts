@@ -44,9 +44,9 @@ export class PlayerStatus {
     position?: { title?: string, time?: number, duration?: number };
 
     constructor(obj: any) {
+        this.actions = {play: false, stop: false, pause: false};
         Object.assign(this, obj);
         this.timestamp = new Date();
-        this.actions = {play: false, stop: false, pause: false};
     }
 }
 

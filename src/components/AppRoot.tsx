@@ -7,6 +7,7 @@ import {PlayerService} from "../core/player.service";
 import {classNames} from "../util";
 import {prescale} from "../util/prescale";
 import '../AppRoot.scss';
+import {PlayerTimeControl} from "./PlayerTimeControl";
 import {PlayerControl} from "./PlayerControl";
 
 export interface AppRootState {
@@ -61,18 +62,6 @@ export class AppRoot extends Component<any, AppRootState> {
         this.setState((state) => ({statusbarExpanded: !state.statusbarExpanded}));
     }
 
-    pause() {
-        this.playerService.pause();
-    }
-
-    stop() {
-        this.playerService.stop();
-    }
-
-    play() {
-        this.playerService.play();
-    }
-
     selectPlayer(player: Player) {
         this.setState({activePlayer: player});
     }
@@ -86,21 +75,11 @@ export class AppRoot extends Component<any, AppRootState> {
                 <a className="c-statusBar__sidebarToggle u-borderlessButton"
                    onClick={() => this.toggleNavBar()}><span className="oi oi-menu"></span></a>
 
-                <div className="c-statusBar__playbackControls">
-                    <a className="u-borderLessButton"
-                       onClick={() => this.play()}
-                       hidden={!(this.state.status?.actions?.pause)}><span className="oi oi-media-pause"></span></a>
-                    <a className="u-borderLessButton"
-                       onClick={() => this.pause()}
-                       hidden={!(this.state.status?.actions?.play)}><span className="oi oi-media-play"></span></a>
-                    <a className="u-borderLessButton"
-                       onClick={() => this.stop()}
-                       hidden={!(this.state.status?.actions?.stop)}><span className="oi oi-media-stop"></span></a>
-                </div>
+                { this.state.activePlayer && <PlayerControl player={this.state.activePlayer}></PlayerControl>}
 
                 {
                     this.state.activePlayer ?
-                        <PlayerControl player={this.state.activePlayer}></PlayerControl>
+                        <PlayerTimeControl player={this.state.activePlayer}></PlayerTimeControl>
                         :
                         <div className="c-statusBar__playbackArea c-statusBar__playbackArea--noplayer">
                             No player selected

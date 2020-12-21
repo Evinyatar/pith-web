@@ -1,14 +1,12 @@
 import {Component} from "react";
 import {Player, PlayerStatus} from "../core/pith-client.service";
-import {formatTime} from "../core/formatTime";
 import {Subscription} from "rxjs";
-import {Scrubber} from "../util/Scrubber";
 
-export interface PlayerControlProps {
+interface PlayerControlProps {
     player: Player
 }
 
-export interface PlayerControlState {
+interface PlayerControlState {
     status: PlayerStatus | null
 }
 
@@ -32,19 +30,29 @@ export class PlayerControl extends Component<PlayerControlProps, PlayerControlSt
         this.subscription?.unsubscribe();
     }
 
-    seekTo(position: number) {
-        this.props.player.seek(position);
+    pause() {
+        this.props.player.pause();
+    }
+
+    stop() {
+        this.props.player.stop();
+    }
+
+    play() {
+        this.props.player.play();
     }
 
     render() {
-        return <div className="c-statusBar__playbackArea">
-            <span className="playback-title">{this.state.status?.position?.title ?? "Unknown"}</span>
-            <span className="playback-time">{formatTime(this.state.status?.position?.time)}</span>
-            <div className="playback-bar">
-                <Scrubber value={this.state.status?.position?.time ?? 0} valueChanged={(time) => this.seekTo(time)}
-                          max={this.state.status?.position?.duration ?? 0}></Scrubber>
-            </div>
-            <span className="playback-runtime">{formatTime(this.state.status?.position?.duration)}</span>
+        return <div className="c-statusBar__playbackControls">
+            <a className="u-borderlessButton"
+               onClick={() => this.pause()}
+               hidden={!(this.state.status?.actions?.pause)}><span className="oi oi-media-pause"></span></a>
+            <a className="u-borderlessButton"
+               onClick={() => this.play()}
+               hidden={!(this.state.status?.actions?.play)}><span className="oi oi-media-play"></span></a>
+            <a className="u-borderlessButton"
+               onClick={() => this.stop()}
+               hidden={!(this.state.status?.actions?.stop)}><span className="oi oi-media-stop"></span></a>
         </div>;
     }
 }
