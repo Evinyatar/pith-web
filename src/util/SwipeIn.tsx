@@ -44,7 +44,7 @@ export class SwipeIn extends Component<SwipeInProps, SwipeInState> {
         if (this.state.dragging) {
             this.setState({
                 dragging: false,
-                pos: null
+                pos: this.targetPosition()
             });
         }
     }
@@ -61,7 +61,7 @@ export class SwipeIn extends Component<SwipeInProps, SwipeInState> {
         this.props.onChange(this.state.previousValue! < touch.clientX)
     }
 
-    pageHostTouchStartHandler(event: TouchEvent) {
+    targetTouchStartHandler(event: TouchEvent) {
         this.setState({
             firstValue: event.touches[0].clientX,
             previousValue: event.touches[0].clientX,
@@ -70,14 +70,14 @@ export class SwipeIn extends Component<SwipeInProps, SwipeInState> {
         });
     }
 
-    pageHostTouchEndHandler(event: TouchEvent) {
+    targetTouchEndHandler(event: TouchEvent) {
         this.setState({
-            pos: null,
+            pos: this.targetPosition(),
             dragging: false
         });
     }
 
-    pageHostTouchMoveHandler(event: TouchEvent) {
+    targetTouchMoveHandler(event: TouchEvent) {
         this.setState({
             pos: Math.min(0, event.touches[0].clientX - this.state.firstValue!) + 'px',
             previousValue: event.touches[0].clientX
@@ -85,6 +85,16 @@ export class SwipeIn extends Component<SwipeInProps, SwipeInState> {
         this.props.onChange(this.state.previousValue! < event.touches[0].clientX);
         event.preventDefault();
         event.stopPropagation();
+    }
+
+    componentDidMount() {
+        this.setState({
+            pos: this.targetPosition()
+        })
+    }
+
+    private targetPosition() {
+        return -this.targetElement!.offsetWidth + "px";
     }
 
     render() {
@@ -97,9 +107,9 @@ export class SwipeIn extends Component<SwipeInProps, SwipeInState> {
                 {this.props.children}
             </div>
             <div
-                onTouchStart={(event) => this.pageHostTouchStartHandler(event.nativeEvent)}
-                onTouchEnd={(event) => this.pageHostTouchEndHandler(event.nativeEvent)}
-                onTouchMove={(event) => this.pageHostTouchMoveHandler(event.nativeEvent)}
+                onTouchStart={(event) => this.targetTouchStartHandler(event.nativeEvent)}
+                onTouchEnd={(event) => this.targetTouchEndHandler(event.nativeEvent)}
+                onTouchMove={(event) => this.targetTouchMoveHandler(event.nativeEvent)}
                 ref={(el) => this.targetElement = el}
                 className={classNames('c-swipeIn', {
                     dragging: this.state.dragging,
