@@ -139,7 +139,7 @@ export interface ChannelItem {
     overview: string;
     hasNew: boolean;
     unavailable: boolean;
-    type: string;
+    type: 'file'|'container';
     year: string;
     playable: boolean;
     imdbId: string;
@@ -199,7 +199,7 @@ export class Channel extends RestModule {
         this.title = title;
     }
 
-    listContents(path: string, cacheOptions?: CacheOptions): Observable<ChannelItem[]> {
+    listContents(path?: string, cacheOptions?: CacheOptions): Observable<ChannelItem[]> {
         return this.get(null, 'list', path || '', {includePlayStates: true}) as Observable<ChannelItem[]>;
     }
 

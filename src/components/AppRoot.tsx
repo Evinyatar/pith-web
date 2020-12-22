@@ -1,4 +1,4 @@
-import {Component} from "react";
+import {Component, ReactNode} from "react";
 import {Dropdown} from "react-bootstrap";
 import {HttpClient} from "../core/HttpClient";
 import {Channel, PithClientService, Player, PlayerStatus} from "../core/pith-client.service";
@@ -10,6 +10,9 @@ import '../AppRoot.scss';
 import {PlayerTimeControl} from "./PlayerTimeControl";
 import {PlayerControl} from "./PlayerControl";
 import {SwipeIn} from "../util/SwipeIn";
+import {Switch, Route, BrowserRouter as Router, Link, useParams} from "react-router-dom";
+import {Settings} from "./settings/Settings";
+import {ChannelBrowser} from "./browser/ChannelBrowser";
 
 export interface AppRootState {
     status?: PlayerStatus
@@ -68,7 +71,7 @@ export class AppRoot extends Component<any, AppRootState> {
     }
 
     render() {
-        return <div>
+        return <Router>
             <div className={classNames("c-statusBar", {
                 expanded: this.state.statusbarExpanded,
                 loading: this.state.loading
@@ -123,22 +126,34 @@ export class AppRoot extends Component<any, AppRootState> {
                                 {
                                     this.state.channels.map(channel => (
                                         <li className="c-navBar__item" key={channel.id}>
-                                            <a href="channel/{channel.id}">{channel.title}</a>
+                                            <Link to={`/channel/${channel.id}`}>{channel.title}</Link>
                                         </li>
                                     ))
                                 }
                             </ul>
                         </li>
                         <li className="c-navBar__item">
-                            <a href="settings">Settings</a>
+                            <Link to="/settings">Settings</Link>
                         </li>
                     </ul>
                 </div>
             }>
                 <div className="page-host">
-
+                    <Switch>
+                        <Route path="/settings"><Settings></Settings></Route>
+                        <Route path="/channel/:channelId/:itemId+"><ChannelRoute client={this.pithClientService}/></Route>
+                        <Route path="/channel/:channelId"><ChannelRoute client={this.pithClientService}/></Route>
+                    </Switch>
                 </div>
             </SwipeIn>
-        </div>;
+        </Router>;
     }
+
+
+}
+
+function ChannelRoute({client}: {client: PithClientService}) {
+    const {channelId, itemId} = useParams() as {channelId: string, itemId?: string};
+
+    return <ChannelBrowser key={channelId+"/"+itemId} channelId={channelId} itemId={itemId} client={client}></ChannelBrowser>
 }
