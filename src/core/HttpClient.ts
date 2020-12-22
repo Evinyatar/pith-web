@@ -9,7 +9,7 @@ export class HttpClient {
     put(url: string, body: any): Observable<any> {
         return this.fetch(url, {
             method: 'put',
-            body: body
+            body: JSON.stringify(body)
         });
     }
 

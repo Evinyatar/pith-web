@@ -1,11 +1,12 @@
 import {Component} from "react";
-import {ChannelBrowserProps} from "./ChannelBrowser";
+import {ChannelBrowserProps, Path} from "./ChannelBrowser";
 import {Link} from 'react-router-dom';
 import {Dropdown} from "react-bootstrap";
-import {ChannelItem} from "../../core/pith-client.service";
+import {Channel, ChannelItem} from "../../core/pith-client.service";
 import {classNames} from "../../util";
 import {prescale} from "../../util/prescale";
 import {formatTime} from "../../core/formatTime";
+import {BreadCrumb} from "./BreadCrumb";
 
 interface State {
     searchString: string
@@ -86,19 +87,10 @@ export class ContainerDetails extends Component<ChannelBrowserProps, State> {
     render() {
         return <>
             <div className="c-channelNav u-hideOnMobile">
-                <ul className="c-channelNav__breadcrumb">
-                    <li><Link to={'/channel/' + this.props.channel.id} tabIndex={0}>{this.props.channel?.title}</Link></li>
-                    {
-                        this.props?.path?.map(pathItem =>
-                            <li key={pathItem.id}><Link to={`/channel/${this.props.channel.id}/${pathItem.id}`}
-                                                        tabIndex={1}>{pathItem.title}</Link></li>
-                        )
-                    }
-                </ul>
-
+                <BreadCrumb channel={this.props.channel} path={this.props.path}></BreadCrumb>
                 {this.props.item?.sortableFields?.length &&
                 <Dropdown>
-                    <Dropdown.Toggle><i className="oi oi-sort-ascending"></i></Dropdown.Toggle>
+                    <Dropdown.Toggle as={"a"} className="btn"><i className="oi oi-sort-ascending"></i></Dropdown.Toggle>
                     <Dropdown.Menu>
                         {this.props.item.sortableFields.map(sortField => (
                             <Dropdown.Item key={sortField}

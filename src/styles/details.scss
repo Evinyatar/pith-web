@@ -86,15 +86,15 @@
     margin: 8px 8px 0 0;
 
     &:after {
-      content: attr(flag);
+      content: attr(data-flag);
     }
 
-    &[subdomain="language"] {
-      &[domain="audio"]:before {
+    &[data-subdomain="language"] {
+      &[data-domain="audio"]:before {
         content: "audio:"
       }
 
-      &[domain="subtitle"]:before {
+      &[data-domain="subtitle"]:before {
         content: "sub:"
       }
     }

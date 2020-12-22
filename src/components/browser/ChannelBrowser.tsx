@@ -5,6 +5,7 @@ import {FileDetails} from "./FileDetails";
 import {ContainerDetails} from "./ContainerDetails";
 import {ShowDetails} from "./ShowDetails";
 import {forkJoin, Observable, of} from "rxjs";
+import {PlayerService} from "../../core/player.service";
 export type Path = { id: string, title:
         string }[];
 
@@ -12,12 +13,14 @@ interface Props {
     channelId: string
     itemId?: string
     client: PithClientService
+    playerService: PlayerService
 }
 
 export interface ChannelBrowserProps {
     channel: Channel
     item?: ChannelItem
     path?: Path
+    playerService: PlayerService
 }
 
 interface State {
@@ -46,11 +49,11 @@ export class ChannelBrowser extends Component<Props, State> {
     getViewForItem() {
         if(this.state?.channel) {
             if (this.state.item?.type === 'file') {
-                return <FileDetails channel={this.state.channel!} item={this.state.item} path={this.state.path}></FileDetails>;
+                return <FileDetails channel={this.state.channel!} item={this.state.item} path={this.state.path} playerService={this.props.playerService}></FileDetails>;
             // } else if (this.state.item?.mediatype === 'show') {
             //     return <ShowDetails channel={this.state.channel!} item={this.state.item} path={this.state.path}></ShowDetails>;
             } else {
-                return <ContainerDetails channel={this.state.channel!} item={this.state.item} path={this.state.path}></ContainerDetails>;
+                return <ContainerDetails channel={this.state.channel!} item={this.state.item} path={this.state.path} playerService={this.props.playerService}></ContainerDetails>;
             }
         } else {
             return <></>;

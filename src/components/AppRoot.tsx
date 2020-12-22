@@ -141,19 +141,17 @@ export class AppRoot extends Component<any, AppRootState> {
                 <div className="page-host">
                     <Switch>
                         <Route path="/settings"><Settings></Settings></Route>
-                        <Route path="/channel/:channelId/:itemId+"><ChannelRoute client={this.pithClientService}/></Route>
-                        <Route path="/channel/:channelId"><ChannelRoute client={this.pithClientService}/></Route>
+                        <Route path="/channel/:channelId/:itemId+"><ChannelRoute client={this.pithClientService} playerService={this.playerService}/></Route>
+                        <Route path="/channel/:channelId"><ChannelRoute client={this.pithClientService} playerService={this.playerService}/></Route>
                     </Switch>
                 </div>
             </SwipeIn>
         </Router>;
     }
-
-
 }
 
-function ChannelRoute({client}: {client: PithClientService}) {
+function ChannelRoute({client, playerService}: {client: PithClientService, playerService: PlayerService}) {
     const {channelId, itemId} = useParams() as {channelId: string, itemId?: string};
 
-    return <ChannelBrowser key={channelId+"/"+itemId} channelId={channelId} itemId={itemId} client={client}></ChannelBrowser>
+    return <ChannelBrowser key={channelId+"/"+itemId} channelId={channelId} itemId={itemId} client={client} playerService={playerService}></ChannelBrowser>
 }
