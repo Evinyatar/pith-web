@@ -1,4 +1,4 @@
-import {Component, ReactNode} from "react";
+import {Component} from "react";
 import {Dropdown} from "react-bootstrap";
 import {HttpClient} from "../core/HttpClient";
 import {Channel, PithClientService, Player, PlayerStatus} from "../core/pith-client.service";
@@ -40,7 +40,6 @@ export class AppRoot extends Component<any, AppRootState> {
             channels: []
         };
 
-
         this.pithEventsService = new PithEventsService();
         this.pithClientService = new PithClientService(new HttpClient(), this.pithEventsService);
         this.playerService = new PlayerService(this.pithClientService);
@@ -77,13 +76,13 @@ export class AppRoot extends Component<any, AppRootState> {
                 loading: this.state.loading
             })}>
                 <a className="c-statusBar__sidebarToggle u-borderlessButton"
-                   onClick={() => this.toggleNavBar()}><span className="oi oi-menu"></span></a>
+                   onClick={() => this.toggleNavBar()}><span className="oi oi-menu"/></a>
 
                 {
                     this.state.activePlayer ?
                         <>
-                            <PlayerControl player={this.state.activePlayer}></PlayerControl>
-                            <PlayerTimeControl player={this.state.activePlayer}></PlayerTimeControl>
+                            <PlayerControl player={this.state.activePlayer}/>
+                            <PlayerTimeControl player={this.state.activePlayer}/>
                         </>
                         :
                         <div className="c-statusBar__playbackArea c-statusBar__playbackArea--noplayer">
@@ -95,13 +94,13 @@ export class AppRoot extends Component<any, AppRootState> {
                     <Dropdown>
                         <Dropdown.Toggle as="a">
                             {this.state.activePlayer?.icons &&
-                            <img height="24" src={prescale(this.state.activePlayer.icons['48x48'].url)}/>}
+                            <img alt="Active player icon" height="24" src={prescale(this.state.activePlayer.icons['48x48'].url)}/>}
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
                             {
                                 this.state.players.map(player => (
                                     <Dropdown.Item key={player.id} onClick={() => this.selectPlayer(player)}>
-                                        <img src={prescale(player.icons['48x48'].url)} height="24"/> {player.friendlyName}
+                                        <img alt={player.friendlyName} src={prescale(player.icons['48x48'].url)} height="24"/> {player.friendlyName}
                                     </Dropdown.Item>
                                 ))
                             }
@@ -110,7 +109,7 @@ export class AppRoot extends Component<any, AppRootState> {
                 </div>
 
                 <div className="c-statusBar__expandButton u-borderlessButton">
-                    <i className={classNames("oi", this.state.statusbarExpanded ? "oi-chevron-top" : "oi-chevron-bottom")}></i>
+                    <i className={classNames("oi", this.state.statusbarExpanded ? "oi-chevron-top" : "oi-chevron-bottom")}/>
                 </div>
             </div>
 
@@ -119,7 +118,7 @@ export class AppRoot extends Component<any, AppRootState> {
                 onChange={ (expanded) => this.setState({navbarExpanded: expanded}) }
                 target={
                 <div className="c-navBar">
-                    <a className="c-navBar__closeBtn" onClick={() => this.toggleNavBar()}><i className="oi oi-chevron-left"></i></a>
+                    <a className="c-navBar__closeBtn" onClick={() => this.toggleNavBar()}><i className="oi oi-chevron-left"/></a>
                     <ul>
                         <li className="c-navBar__group">Channels
                             <ul>
@@ -140,7 +139,7 @@ export class AppRoot extends Component<any, AppRootState> {
             }>
                 <div className="page-host">
                     <Switch>
-                        <Route path="/settings"><Settings></Settings></Route>
+                        <Route path="/settings"><Settings pithClientService={this.pithClientService}/></Route>
                         <Route path="/channel/:channelId/:itemId+"><ChannelRoute client={this.pithClientService} playerService={this.playerService}/></Route>
                         <Route path="/channel/:channelId"><ChannelRoute client={this.pithClientService} playerService={this.playerService}/></Route>
                     </Switch>
@@ -153,5 +152,5 @@ export class AppRoot extends Component<any, AppRootState> {
 function ChannelRoute({client, playerService}: {client: PithClientService, playerService: PlayerService}) {
     const {channelId, itemId} = useParams() as {channelId: string, itemId?: string};
 
-    return <ChannelBrowser key={channelId+"/"+itemId} channelId={channelId} itemId={itemId} client={client} playerService={playerService}></ChannelBrowser>
+    return <ChannelBrowser key={channelId+"/"+itemId} channelId={channelId} itemId={itemId} client={client} playerService={playerService}/>
 }

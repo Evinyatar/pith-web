@@ -1,8 +1,8 @@
 import {Component} from "react";
-import {ChannelBrowserProps, Path} from "./ChannelBrowser";
+import {ChannelBrowserProps} from "./ChannelBrowser";
 import {Link} from 'react-router-dom';
 import {Dropdown} from "react-bootstrap";
-import {Channel, ChannelItem} from "../../core/pith-client.service";
+import {ChannelItem} from "../../core/pith-client.service";
 import {classNames} from "../../util";
 import {prescale} from "../../util/prescale";
 import {formatTime} from "../../core/formatTime";
@@ -87,10 +87,10 @@ export class ContainerDetails extends Component<ChannelBrowserProps, State> {
     render() {
         return <>
             <div className="c-channelNav u-hideOnMobile">
-                <BreadCrumb channel={this.props.channel} path={this.props.path}></BreadCrumb>
+                <BreadCrumb channel={this.props.channel} path={this.props.path}/>
                 {this.props.item?.sortableFields?.length &&
                 <Dropdown>
-                    <Dropdown.Toggle as={"a"} className="btn"><i className="oi oi-sort-ascending"></i></Dropdown.Toggle>
+                    <Dropdown.Toggle as={"a"} className="btn"><i className="oi oi-sort-ascending"/></Dropdown.Toggle>
                     <Dropdown.Menu>
                         {this.props.item.sortableFields.map(sortField => (
                             <Dropdown.Item key={sortField}
@@ -104,7 +104,7 @@ export class ContainerDetails extends Component<ChannelBrowserProps, State> {
                     <input type="text" value={this.state.searchString}
                            onChange={(event) => this.search(event.target.value)} role="search"
                            className="c-channelNav__searchInput" required={true}/>
-                    <span className="oi oi-magnifying-glass c-channelNav__searchIcon"></span>
+                    <span className="oi oi-magnifying-glass c-channelNav__searchIcon"/>
                 </div>
             </div>
 
@@ -126,7 +126,7 @@ export class ContainerDetails extends Component<ChannelBrowserProps, State> {
 
                         <Link className="c-contentBrowser__itemPresentation" to={`/channel/${this.props.channel.id}/${item.id}`}>
                             {item.poster && <div className="c-contentBrowser__poster"
-                                                 style={{backgroundImage: `url(${prescale(item.poster, '130x195')})`}}></div>}
+                                                 style={{backgroundImage: `url(${prescale(item.poster, '130x195')})`}}/>}
                             {item.still && !item.poster && <img className="c-contentBrowser__still"
                                                                 src={prescale(item.still, '266x150')}/>}
 
@@ -134,7 +134,7 @@ export class ContainerDetails extends Component<ChannelBrowserProps, State> {
                                 {item.title && <span className="r-title">{item.title}</span>}
                                 {item.year && <span className="r-year">{item.year}</span>}
                                 {item.rating &&
-                                <span className="r-rating"><span className="stars" data-starrating={item.rating}></span></span>}
+                                <span className="r-rating"><span className="stars" data-starrating={item.rating}/></span>}
                                 {item.duration && <span className="r-duration">{formatTime(item.duration)}</span>}
                             </span>
                         </Link>

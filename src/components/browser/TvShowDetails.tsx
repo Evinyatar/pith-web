@@ -74,7 +74,7 @@ export class TvShowDetails extends Component<ChannelBrowserProps, State> {
                                 selected: selectedSeason === season,
                                 inprogress: season.playState.status === 'inprogress',
                                 watched: season.playState.status === 'watched'
-                            })}>{season.season == 0 ? 'Specials' : season.season}</li>
+                            })}>{season.season === 0 ? 'Specials' : season.season}</li>
                     ))}
                 </ul>
                 <ul className="seasondetails">
