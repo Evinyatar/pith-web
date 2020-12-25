@@ -9,6 +9,9 @@ export class HttpClient {
     put(url: string, body: any): Observable<any> {
         return this.fetch(url, {
             method: 'put',
+            headers: {
+                "Content-Type": "application/json"
+            },
             body: JSON.stringify(body)
         });
     }

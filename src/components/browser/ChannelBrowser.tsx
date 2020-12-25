@@ -3,11 +3,10 @@ import {Channel, ChannelItem, PithClientService} from "../../core/pith-client.se
 import {prescale} from "../../util/prescale";
 import {FileDetails} from "./FileDetails";
 import {ContainerDetails} from "./ContainerDetails";
-import {ShowDetails} from "./ShowDetails";
+import {TvShowDetails} from "./TvShowDetails";
 import {forkJoin, Observable, of} from "rxjs";
 import {PlayerService} from "../../core/player.service";
-export type Path = { id: string, title:
-        string }[];
+export type Path = { id: string, title: string }[];
 
 interface Props {
     channelId: string
@@ -42,18 +41,18 @@ export class ChannelBrowser extends Component<Props, State> {
         this.setState({
             channel,
             item,
-            path
+            path: [...(path ?? []), ...(item ? [item] : [])]
         })
     }
 
     getViewForItem() {
         if(this.state?.channel) {
             if (this.state.item?.type === 'file') {
-                return <FileDetails channel={this.state.channel!} item={this.state.item} path={this.state.path} playerService={this.props.playerService}></FileDetails>;
-            // } else if (this.state.item?.mediatype === 'show') {
-            //     return <ShowDetails channel={this.state.channel!} item={this.state.item} path={this.state.path}></ShowDetails>;
+                return <FileDetails channel={this.state.channel!} item={this.state.item} path={this.state.path} playerService={this.props.playerService}/>;
+            } else if (this.state.item?.mediatype === 'show') {
+                return <TvShowDetails channel={this.state.channel!} item={this.state.item} path={this.state.path} playerService={this.props.playerService}/>;
             } else {
-                return <ContainerDetails channel={this.state.channel!} item={this.state.item} path={this.state.path} playerService={this.props.playerService}></ContainerDetails>;
+                return <ContainerDetails channel={this.state.channel!} item={this.state.item} path={this.state.path} playerService={this.props.playerService}/>;
             }
         } else {
             return <></>;
@@ -75,7 +74,7 @@ export class ChannelBrowser extends Component<Props, State> {
     render() {
         return <>
             {this.state?.item?.backdrop &&
-            <div style={{backgroundImage: 'url(' + prescale(this.state.item.backdrop) + ')'}} className="c-backdrop"></div>}
+            <div style={{backgroundImage: 'url(' + prescale(this.state.item.backdrop) + ')'}} className="c-backdrop"/>}
             {this.getViewForItem()}
         </>;
     }
