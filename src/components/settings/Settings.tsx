@@ -1,6 +1,8 @@
 import {Component} from "react";
 import {PithClientService, PithSettings} from "../../core/pith-client.service";
 import {Tab, Tabs} from "react-bootstrap";
+import {MediaSettings} from "./MediaSettings";
+import {createStateManager} from "../../util/stateManager";
 
 interface State {
     settings: PithSettings | undefined;
@@ -20,9 +22,7 @@ export class Settings extends Component<Props, State> {
 
     async componentDidMount() {
         const settings = await this.props.pithClientService.loadSettings().toPromise();
-        this.setState({
-            settings
-        });
+        this.setState({settings});
     }
 
     save(settings: PithSettings) {
@@ -30,12 +30,15 @@ export class Settings extends Component<Props, State> {
     }
 
     render() {
-        return this.state.settings ?
-            <div className="container">
+        if(!this.state.settings) {
+            return <></>;
+        }
+        const stateManager = createStateManager(this.state.settings, s => this.setState({settings: s})).proxy();
+        return <div className="container">
                 <button className="btn btn-primary float-right" onClick={() => this.save(this.state.settings!)}>Save</button>
                 <Tabs defaultActiveKey="media" id="settingsTabPanel">
                     <Tab eventKey="media" title="Media">
-                        Media settings
+                        <MediaSettings stateManager={stateManager} />
                     </Tab>
                     <Tab eventKey="advanced" title="Advanced">
                         Advanced settings
@@ -44,7 +47,6 @@ export class Settings extends Component<Props, State> {
                         Integrations
                     </Tab>
                 </Tabs>
-            </div> :
-            <></>;
+            </div>
     }
 }
