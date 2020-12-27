@@ -1,8 +1,8 @@
 import {PithSettings} from "../../core/pith-client.service";
-import {bindCheckbox, StateManagerProxy} from "../../util/stateManager";
+import {bindCheckbox, StateManagerProxy} from "../../statemanager/stateManager";
 
 export function LibraryCategorySettings({binder}: { binder: StateManagerProxy<PithSettings> }) {
-    function removeLibraryContainer(folder: any) {
+    function removeLibraryContainer(folder: number) {
 
     }
 
@@ -15,12 +15,12 @@ export function LibraryCategorySettings({binder}: { binder: StateManagerProxy<Pi
             <div className="card-header border-bottom-0">Library folders</div>
             <ul className="list-group list-group-flush">
                 {
-                    binder.library.folders().map(folder => (
+                    binder.library.folders.map((folder, idx) => (
                         <li className="list-group-item">
                             <div className="custom-control custom-checkbox custom-control-inline">
                                 <label className="form-check-label"><input className="form-check-input"
-                                                                           type="checkbox" {...bindCheckbox(folder.proxy().scanAutomatically())}
-                                                                           title="Enable scanning"/> {folder.get().containerId}</label>
+                                                                           type="checkbox" {...bindCheckbox(folder.scanAutomatically())}
+                                                                           title="Enable scanning"/> {folder.containerId}</label>
                             </div>
                             <i>contains</i>
                             <div className="custom-control custom-control-inline">
@@ -30,7 +30,7 @@ export function LibraryCategorySettings({binder}: { binder: StateManagerProxy<Pi
                                     <option value="music">Music</option>
                                 </select>
                             </div>
-                            <a className="float-right" onClick={evt => removeLibraryContainer(folder.get())} title="Remove folder">
+                            <a className="float-right" onClick={evt => removeLibraryContainer(idx)} title="Remove folder">
                                 <span className="oi oi-trash"></span>
                             </a>
                         </li>))

@@ -1,5 +1,5 @@
 import {PithSettings} from "../../core/pith-client.service";
-import {bindInput, NumberTransformer, Scale, StateManagerProxy} from "../../util/stateManager";
+import {bindInput, NumberTransformer, Scale, StateManagerProxy} from "../../statemanager/stateManager";
 import {LibraryCategorySettings} from "./LibraryCategorySettings";
 
 export function MediaSettings({stateManager}: { stateManager: StateManagerProxy<PithSettings> }) {

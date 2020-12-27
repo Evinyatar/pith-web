@@ -2,7 +2,7 @@ import {Component} from "react";
 import {PithClientService, PithSettings} from "../../core/pith-client.service";
 import {Tab, Tabs} from "react-bootstrap";
 import {MediaSettings} from "./MediaSettings";
-import {createStateManager} from "../../util/stateManager";
+import {createStateManager} from "../../statemanager/stateManager";
 
 interface State {
     settings: PithSettings | undefined;
