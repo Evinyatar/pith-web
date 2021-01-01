@@ -1,14 +1,30 @@
-import {PithSettings} from "../../core/pith-client.service";
+import {PithClientService, PithSettings} from "../../core/pith-client.service";
 import {bindCheckbox, StateManagerProxy} from "../../statemanager/stateManager";
+import {useState} from "react";
+import {ContainerChooser} from "./ContainerChooser";
 
-export function LibraryCategorySettings({binder}: { binder: StateManagerProxy<PithSettings> }) {
+export function LibraryCategorySettings({binder, pithClient}: { binder: StateManagerProxy<PithSettings>, pithClient: PithClientService }) {
     function removeLibraryContainer(folder: number) {
 
     }
 
     function addLibraryContainer() {
-
+        openContainerChooser(true);
     }
+
+    function finishAddLibraryContainer(result?: {channelId: string, containerId: string | null}) {
+        openContainerChooser(false);
+        if(result) {
+            binder.library.folders.push({
+                channelId: result.channelId,
+                containerId: result.containerId,
+                scanAutomatically: true,
+                contains: ""
+            })
+        }
+    }
+
+    let [showContainerChooser, openContainerChooser] = useState(false);
 
     return (
         <div className="card my-3">
@@ -40,5 +56,7 @@ export function LibraryCategorySettings({binder}: { binder: StateManagerProxy<Pi
                 <a onClick={evt => addLibraryContainer()} tabIndex={0}><i className="oi oi-plus"></i> Add folder
                 </a>
             </div>
+
+            {showContainerChooser && <ContainerChooser show={showContainerChooser} onFinish={finishAddLibraryContainer} pithClient={pithClient} />}
         </div>);
 }

@@ -247,7 +247,7 @@ export interface PithSettings {
     library: {
         folders: [{
             channelId: string,
-            containerId: string,
+            containerId: string | null,
             contains: string,
             scanAutomatically: boolean
         }],

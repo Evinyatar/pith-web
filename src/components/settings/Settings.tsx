@@ -38,7 +38,7 @@ export class Settings extends Component<Props, State> {
                 <button className="btn btn-primary float-right" onClick={() => this.save(this.state.settings!)}>Save</button>
                 <Tabs defaultActiveKey="media" id="settingsTabPanel">
                     <Tab eventKey="media" title="Media">
-                        <MediaSettings stateManager={stateManager} />
+                        <MediaSettings stateManager={stateManager} pithClient={this.props.pithClientService} />
                     </Tab>
                     <Tab eventKey="advanced" title="Advanced">
                         Advanced settings
