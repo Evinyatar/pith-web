@@ -21,6 +21,11 @@ export class PlayerControl extends Component<PlayerControlProps, PlayerControlSt
     }
 
     componentDidMount() {
+        this.subscribeToStatus();
+    }
+
+    private subscribeToStatus() {
+        this.subscription?.unsubscribe();
         this.subscription = this.props.player.status.subscribe(status => {
             this.setState({status});
         });
@@ -28,6 +33,13 @@ export class PlayerControl extends Component<PlayerControlProps, PlayerControlSt
 
     componentWillUnmount() {
         this.subscription?.unsubscribe();
+    }
+
+    componentDidUpdate(prevProps: Readonly<PlayerControlProps>, prevState: Readonly<PlayerControlState>, snapshot?: any) {
+        if(prevProps.player !== this.props.player) {
+            this.setState({status: null});
+            this.subscribeToStatus();
+        }
     }
 
     pause() {
