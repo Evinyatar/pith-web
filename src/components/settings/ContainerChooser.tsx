@@ -85,26 +85,6 @@ export class ContainerChooser extends Component<Props, {
     render() {
         const state = this.currentState;
 
-        /**
-         * <div class="modal-header">
-         <h4 class="modal-title">
-         {{ state.container?.title || state.channel?.title || "Channels" }}
-         </h4>
-         <button type="button" class="close" data-dismiss="modal" (click)="activeModal.dismiss()"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-         </div>
-         <ul class="list-group list-group-flush">
-         <li *ngIf="history.length > 0" class="list-group-item" (click)="goBack()"><a tabindex="0"><i>Go back</i></a></li>
-         <li class="list-group-item" *ngFor="let item of view" (click)="go(item)">
-         <a tabindex="0">{{item.title}}</a>
-         </li>
-         <li class="list-group-item" *ngIf="contents?.length > limit" (click)="showMore()"><a tabindex="0"><i>Show more &hellip;</i></a></li>
-         </ul>
-         <div class="modal-footer">
-         <button type="button" class="btn btn-primary pull-right" (click)="select(state.channel, state.container)">Select</button>
-         </div>
-
-         */
-
         const {content, stateHistory, limit} = this.state;
 
         return <Modal show={this.props.show} onHide={this.props.onFinish}>
@@ -114,7 +94,10 @@ export class ContainerChooser extends Component<Props, {
             <ListGroup variant="flush">
                 {stateHistory.length > 1 && <ListGroup.Item onClick={() => this.goBack()}><i>Go back</i></ListGroup.Item>}
                 {content.slice(0, this.state.limit).map(item => (
-                    <ListGroup.Item key={item.id} onClick={() => this.go(item)}><a tabIndex={0}>{item.title}</a></ListGroup.Item>
+                    <ListGroup.Item disabled={'type' in item && (item as ChannelItem).type !== 'container'} key={item.id}
+                                    onClick={() => this.go(item)}>
+                        {item.title}
+                    </ListGroup.Item>
                 ))}
                 {content?.length > limit && <ListGroup.Item onClick={() => this.showMore()}><i>Show more &hellip;</i></ListGroup.Item>}
             </ListGroup>
