@@ -1,5 +1,5 @@
 import {PithClientService, PithSettings} from "../../core/pith-client.service";
-import {bindCheckbox, StateManagerProxy} from "../../statemanager/stateManager";
+import {bindCheckbox, bindInput, StateManagerProxy} from "../../statemanager/stateManager";
 import {useState} from "react";
 import {ContainerChooser} from "./ContainerChooser";
 
@@ -36,11 +36,11 @@ export function LibraryCategorySettings({binder, pithClient}: { binder: StateMan
                             <div className="custom-control custom-checkbox custom-control-inline">
                                 <label className="form-check-label"><input className="form-check-input"
                                                                            type="checkbox" {...bindCheckbox(folder.scanAutomatically())}
-                                                                           title="Enable scanning"/> {folder.containerId}</label>
+                                                                           title="Enable scanning"/> {folder.containerId().get()}</label>
                             </div>
                             <i>contains</i>
                             <div className="custom-control custom-control-inline">
-                                <select className="form-control" required>
+                                <select className="form-control" required {...bindInput(folder.contains())}>
                                     <option value="movies">Movies</option>
                                     <option value="tvshows">TV Shows</option>
                                     <option value="music">Music</option>
@@ -53,7 +53,7 @@ export function LibraryCategorySettings({binder, pithClient}: { binder: StateMan
                 }
             </ul>
             <div className="card-footer border-top-0">
-                <a onClick={evt => addLibraryContainer()} tabIndex={0}><i className="oi oi-plus"></i> Add folder
+                <a onClick={() => addLibraryContainer()} tabIndex={0}><i className="oi oi-plus"></i> Add folder
                 </a>
             </div>
 
