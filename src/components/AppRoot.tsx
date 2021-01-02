@@ -115,7 +115,7 @@ export class AppRoot extends Component<any, AppRootState> {
                     </Dropdown>
                 </div>
 
-                <div className="c-statusBar__expandButton u-borderlessButton">
+                <div className="c-statusBar__expandButton u-borderlessButton" onClick={() => this.toggleStatusBar()}>
                     <i className={classNames("oi", this.state.statusbarExpanded ? "oi-chevron-top" : "oi-chevron-bottom")}/>
                 </div>
             </div>
