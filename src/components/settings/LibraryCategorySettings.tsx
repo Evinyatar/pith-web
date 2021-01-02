@@ -5,7 +5,7 @@ import {ContainerChooser} from "./ContainerChooser";
 
 export function LibraryCategorySettings({binder, pithClient}: { binder: StateManagerProxy<PithSettings>, pithClient: PithClientService }) {
     function removeLibraryContainer(folder: number) {
-
+        binder.library.folders.splice(folder, 1);
     }
 
     function addLibraryContainer() {
@@ -46,7 +46,7 @@ export function LibraryCategorySettings({binder, pithClient}: { binder: StateMan
                                     <option value="music">Music</option>
                                 </select>
                             </div>
-                            <a className="float-right" onClick={evt => removeLibraryContainer(idx)} title="Remove folder">
+                            <a className="float-right" onClick={() => removeLibraryContainer(idx)} title="Remove folder">
                                 <span className="oi oi-trash"></span>
                             </a>
                         </li>))

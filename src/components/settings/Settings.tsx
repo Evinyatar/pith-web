@@ -3,6 +3,8 @@ import {PithClientService, PithSettings} from "../../core/pith-client.service";
 import {Tab, Tabs} from "react-bootstrap";
 import {MediaSettings} from "./MediaSettings";
 import {createStateManager} from "../../statemanager/stateManager";
+import {AdvancedSettings} from "./AdvancedSettings";
+import {IntegrationSettings} from "./IntegrationSettings";
 
 interface State {
     settings: PithSettings | undefined;
@@ -41,10 +43,10 @@ export class Settings extends Component<Props, State> {
                         <MediaSettings stateManager={stateManager} pithClient={this.props.pithClientService} />
                     </Tab>
                     <Tab eventKey="advanced" title="Advanced">
-                        Advanced settings
+                        <AdvancedSettings binder={stateManager} pithClient={this.props.pithClientService}/>
                     </Tab>
                     <Tab eventKey="integrations" title="Integrations">
-                        Integrations
+                        <IntegrationSettings binder={stateManager} pithClient={this.props.pithClientService}/>
                     </Tab>
                 </Tabs>
             </div>
