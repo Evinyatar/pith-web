@@ -68,6 +68,10 @@ export class AppRoot extends Component<any, AppRootState> {
         this.setState((state) => ({statusbarExpanded: !state.statusbarExpanded}));
     }
 
+    closeNavBar() {
+        this.setState(() => ({navbarExpanded: false}));
+    }
+
     selectPlayer(player: Player) {
         this.playerService.selectPlayer(player);
     }
@@ -121,21 +125,21 @@ export class AppRoot extends Component<any, AppRootState> {
                 onChange={ (expanded) => this.setState({navbarExpanded: expanded}) }
                 target={
                 <div className="c-navBar">
-                    <a className="c-navBar__closeBtn" onClick={() => this.toggleNavBar()}><i className="oi oi-chevron-left"/></a>
+                    <a className="c-navBar__closeBtn" onClick={() => this.closeNavBar()}><i className="oi oi-chevron-left"/></a>
                     <ul>
                         <li className="c-navBar__group">Channels
                             <ul>
                                 {
                                     this.state.channels.map(channel => (
                                         <li className="c-navBar__item" key={channel.id}>
-                                            <Link to={`/channel/${channel.id}`}>{channel.title}</Link>
+                                            <Link to={`/channel/${channel.id}`} onClick={() => this.closeNavBar()}>{channel.title}</Link>
                                         </li>
                                     ))
                                 }
                             </ul>
                         </li>
                         <li className="c-navBar__item">
-                            <Link to="/settings">Settings</Link>
+                            <Link to="/settings" onClick={() => this.closeNavBar()}>Settings</Link>
                         </li>
                     </ul>
                 </div>
