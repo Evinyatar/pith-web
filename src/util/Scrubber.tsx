@@ -19,7 +19,7 @@ export class Scrubber extends Component<ScrubberProps, {}> {
             <div ref={(el) => this.container = el}
                  className="progress progress-thin flex-grow"
                  onClick={(event) => this.handleSeekClick(event.nativeEvent)}>
-                <div className="progress-bar" role="progressbar" style={{width: (this.props.value / this.props.max * 100 + '%')}}></div>
+                <div className="progress-bar" role="progressbar" style={{width: (this.props.value / this.props.max * 100 + '%')}}/>
             </div>
         );
     }
