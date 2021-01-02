@@ -1,4 +1,4 @@
-import {Component, ReactNode} from "react";
+import {ReactNode} from "react";
 import {classNames} from "../util";
 import './SwipeIn.scss';
 
@@ -6,124 +6,105 @@ interface SwipeInProps {
     target: ReactNode
     expanded: boolean
     onChange: (expanded: boolean) => void
+    children: ReactNode
 }
 
-interface SwipeInState {
-    dragging: boolean
-    previousValue: number | null
-    firstValue: number | null
-    pos: string | null
-}
+export function SwipeIn(props: SwipeInProps) {
+    let targetElement : HTMLDivElement | null = null;
 
-export class SwipeIn extends Component<SwipeInProps, SwipeInState> {
-    private targetElement: HTMLDivElement | null = null;
+    function initHostEvents(node: HTMLDivElement | null) {
+        node?.addEventListener("touchstart", (event: TouchEvent) => {
+            if(!targetElement) return;
 
-    constructor(props: SwipeInProps) {
-        super(props);
-        this.state = {
-            dragging: false,
-            previousValue: null,
-            firstValue: null,
-            pos: null
-        };
-    }
+            const touch = event.touches[0];
+            let targetStatus = false;
+            if (touch.clientX < 20 && !props.expanded) {
+                let previousValue = 0;
 
-    private touchStartHandler(event: TouchEvent) {
-        const touch = event.touches[0];
-        if (touch.clientX < 20 && !this.props.expanded) {
-            this.setState({
-                dragging: true,
-                previousValue: 0
-            });
-            event.preventDefault();
-            event.stopPropagation();
-        }
-    }
+                targetElement.classList.add("dragging");
+                setTargetPosition(targetElement);
 
-    private touchEndHandler() {
-        if (this.state.dragging) {
-            this.setState({
-                dragging: false,
-                pos: this.targetPosition()
-            });
-        }
-    }
+                event.preventDefault();
+                event.stopPropagation();
 
-    private touchMoveHandler(event: TouchEvent) {
-        const touch = event.touches[0];
-        if (!this.state.dragging) {
-            return;
-        }
-        this.setState({
-            pos: Math.min(0, touch.clientX - this.targetElement!.offsetWidth) + 'px',
-            previousValue: touch.clientX
-        });
-        this.props.onChange(this.state.previousValue! < touch.clientX)
-    }
+                const touchmove = (event: TouchEvent) => {
+                    const touch = event.touches[0];
+                    targetElement!.style.left = Math.min(0, touch.clientX - targetElement!.offsetWidth) + 'px';
+                    targetStatus = touch.clientX > previousValue;
+                    previousValue = touch.clientX;
+                }
 
-    targetTouchStartHandler(event: TouchEvent) {
-        this.setState({
-            firstValue: event.touches[0].clientX,
-            previousValue: event.touches[0].clientX,
-            dragging: true,
-            pos: "0"
-        });
-    }
+                const touchend = (event: TouchEvent) => {
+                    targetElement!.classList.remove("dragging");
+                    setTargetPosition(targetElement!);
+                    if(targetStatus) {
+                        props.onChange(true);
+                    }
+                    node!.removeEventListener("touchmove", touchmove);
+                    node!.removeEventListener("touchend", touchend);
+                }
 
-    targetTouchEndHandler(event: TouchEvent) {
-        this.setState({
-            pos: this.targetPosition(),
-            dragging: false
-        });
-    }
-
-    targetTouchMoveHandler(event: TouchEvent) {
-        this.setState({
-            pos: Math.min(0, event.touches[0].clientX - this.state.firstValue!) + 'px',
-            previousValue: event.touches[0].clientX
-        });
-        this.props.onChange(this.state.previousValue! < event.touches[0].clientX);
-        event.preventDefault();
-        event.stopPropagation();
-    }
-
-    componentDidMount() {
-        this.setState({
-            pos: this.targetPosition()
+                node!.addEventListener("touchmove", touchmove);
+                node!.addEventListener("touchend", touchend);
+            }
         })
     }
 
-    private targetPosition() {
-        return -this.targetElement!.offsetWidth + "px";
+    function setTargetPosition(target: HTMLDivElement) {
+        target.style.left = -target.offsetWidth + "px";
     }
 
-    render() {
-        return <div>
-            <div
-                onTouchStart={(event) => this.touchStartHandler(event.nativeEvent)}
-                onTouchMove={(event) => this.touchMoveHandler(event.nativeEvent)}
-                onTouchEnd={(event) => this.touchEndHandler()}
-            >
-                {this.props.children}
-            </div>
-            <div
-                onTouchStart={(event) => this.targetTouchStartHandler(event.nativeEvent)}
-                onTouchEnd={(event) => this.targetTouchEndHandler(event.nativeEvent)}
-                onTouchMove={(event) => this.targetTouchMoveHandler(event.nativeEvent)}
-                ref={(el) => this.targetElement = el}
-                className={classNames('c-swipeIn', {
-                    dragging: this.state.dragging,
-                    expanded: this.props.expanded
-                })}
+    function initTargetEvents(node: HTMLDivElement | null) {
+        node?.addEventListener("touchstart", (event) => {
+            if(!targetElement) {
+                return;
+            }
 
-                style={
-                    {
-                        left: this.state.pos ?? undefined
-                    }
+            const target = targetElement!;
+            const firstValue = event.touches[0].clientX;
+            let previousValue = firstValue;
+            let shouldCloseOnEnd = false;
+            target.classList.add("dragging");
+            target.style.left = "0";
+
+            const touchmove = (event: TouchEvent) => {
+                const touch = event.touches[0];
+                target!.style.left = Math.min(0, touch.clientX - firstValue!) + 'px';
+                shouldCloseOnEnd = previousValue > touch.clientX;
+                previousValue = touch.clientX;
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            const touchend = (event: TouchEvent) => {
+                target.classList.remove("dragging");
+                setTargetPosition(target);
+                if(shouldCloseOnEnd) {
+                    props.onChange(false);
                 }
-            >
-                {this.props.target}
-            </div>
-        </div>;
+
+                target.removeEventListener("touchend", touchend);
+                target.removeEventListener("touchmove", touchmove);
+            }
+
+            target.addEventListener("touchend", touchend);
+            target.addEventListener("touchmove", touchmove);
+        })
     }
+
+    return <div>
+        <div
+            ref={node => initHostEvents(node)}
+        >
+            {props.children}
+        </div>
+        <div
+            ref={(el) => {targetElement = el; initTargetEvents(el); el && setTargetPosition(el)}}
+            className={classNames('c-swipeIn', {
+                expanded: props.expanded
+            })}
+        >
+            {props.target}
+        </div>
+    </div>;
 }
