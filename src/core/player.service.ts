@@ -4,17 +4,13 @@ import {BehaviorSubject, Subject} from 'rxjs';
 const SELECTED_PLAYER_STORAGE_ITEM = 'selectedPlayer';
 
 export class PlayerService {
-    private _activePlayer: Player | null = null;
-    private _players: Player[] = [];
-
-    readonly _activePlayerSubject: Subject<Player | null> = new BehaviorSubject<Player | null>(null);
-    readonly _playersSubject: Subject<Player[]> = new BehaviorSubject<Player[]>([]);
+    readonly activePlayerSubject: BehaviorSubject<Player | null> = new BehaviorSubject<Player | null>(null);
+    readonly playersSubject: BehaviorSubject<Player[]> = new BehaviorSubject<Player[]>([]);
 
     constructor(private pith: PithClientService) {
         this.pith.queryPlayers().subscribe(p => {
-            this._players = p;
-            this._playersSubject.next(p);
-            if (this._activePlayer == null && p.length > 0) {
+            this.playersSubject.next(p);
+            if (this.activePlayerSubject.getValue() == null && p.length > 0) {
                 let selectedPlayer = localStorage.getItem(SELECTED_PLAYER_STORAGE_ITEM);
                 let player: Player | undefined;
                 if (selectedPlayer) {
@@ -29,21 +25,21 @@ export class PlayerService {
 
         this.pith.on('playerregistered').subscribe(([event]) => {
             const player = new RemotePlayer(this.pith, event.player);
-            this._players = this._players.concat([player]);
-            this._playersSubject.next(this._players);
-            if (!this._activePlayer) {
+            let players = this.playersSubject.getValue().concat([player]);
+            this.playersSubject.next(players);
+            if (!this.activePlayerSubject.getValue()) {
                 this.selectPlayer(player);
             }
         });
 
         this.pith.on('playerdisappeared').subscribe(([event]) => {
             const player = event.player;
-            this._players = this._players.filter((e) => e.id !== player.id);
-            this._playersSubject.next(this._players);
+            let players = this.playersSubject.getValue().filter((e) => e.id !== player.id);
+            this.playersSubject.next(players);
 
-            if (this._activePlayer && this._activePlayer.id === player.id) {
-                if (this._players.length > 0) {
-                    this.selectPlayer(this._players[0]);
+            if (this.activePlayerSubject.getValue()?.id === player.id) {
+                if (players.length > 0) {
+                    this.selectPlayer(players[0]);
                 } else {
                     this.selectPlayer(null);
                 }
@@ -57,28 +53,27 @@ export class PlayerService {
         } else {
             localStorage.removeItem(SELECTED_PLAYER_STORAGE_ITEM);
         }
-        this._activePlayer = player;
-        this._activePlayerSubject.next(player);
+        this.activePlayerSubject.next(player);
     }
 
     get players() {
-        return this._playersSubject.asObservable();
+        return this.playersSubject.asObservable();
     }
 
     get activePlayer() {
-        return this._activePlayerSubject.asObservable();
+        return this.activePlayerSubject.asObservable();
     }
 
     play() {
-        this._activePlayer?.play();
+        this.activePlayerSubject.getValue()?.play();
     }
 
     pause() {
-        this._activePlayer?.pause();
+        this.activePlayerSubject.getValue()?.pause();
     }
 
     stop() {
-        this._activePlayer?.stop();
+        this.activePlayerSubject.getValue()?.stop();
     }
 
     async load(channel: Channel, item: ChannelItem) {
@@ -95,11 +90,11 @@ export class PlayerService {
             //   return;
             // }
         }
-        this._activePlayer!.load(channel, item, seekTime);
+        this.activePlayerSubject.getValue()!.load(channel, item, seekTime);
     }
 
     seek(time: number) {
-        this._activePlayer!.seek(time);
+        this.activePlayerSubject.getValue()!.seek(time);
     }
 
 }

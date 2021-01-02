@@ -15,7 +15,6 @@ import {Settings} from "./settings/Settings";
 import {ChannelBrowser} from "./browser/ChannelBrowser";
 
 export interface AppRootState {
-    status?: PlayerStatus
     navbarExpanded: boolean
     statusbarExpanded: boolean
     loading: boolean
@@ -50,11 +49,15 @@ export class AppRoot extends Component<any, AppRootState> {
 
         this.playerService.players.subscribe(players => {
             this.setState({players});
-        });
+        })
 
         this.pithClientService.queryChannels().subscribe(channels => {
             this.setState({channels});
-        });
+        })
+
+        this.playerService.activePlayer.subscribe(player => {
+            this.setState({activePlayer: player});
+        })
     }
 
     toggleNavBar() {
@@ -66,7 +69,7 @@ export class AppRoot extends Component<any, AppRootState> {
     }
 
     selectPlayer(player: Player) {
-        this.setState({activePlayer: player});
+        this.playerService.selectPlayer(player);
     }
 
     render() {

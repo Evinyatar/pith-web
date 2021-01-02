@@ -23,6 +23,11 @@ export class PlayerTimeControl extends Component<PlayerControlProps, PlayerContr
     }
 
     componentDidMount() {
+        this.subscribeToStatus();
+    }
+
+    private subscribeToStatus() {
+        this.subscription?.unsubscribe();
         this.subscription = this.props.player.status.subscribe(status => {
             this.setState({status});
         });
@@ -30,6 +35,13 @@ export class PlayerTimeControl extends Component<PlayerControlProps, PlayerContr
 
     componentWillUnmount() {
         this.subscription?.unsubscribe();
+    }
+
+    componentDidUpdate(prevProps: Readonly<PlayerControlProps>, prevState: Readonly<PlayerControlState>, snapshot?: any) {
+        if(prevProps.player !== this.props.player) {
+            this.setState({status: null});
+            this.subscribeToStatus();
+        }
     }
 
     seekTo(position: number) {
@@ -42,7 +54,7 @@ export class PlayerTimeControl extends Component<PlayerControlProps, PlayerContr
             <span className="playback-time">{formatTime(this.state.status?.position?.time)}</span>
             <div className="playback-bar">
                 <Scrubber value={this.state.status?.position?.time ?? 0} valueChanged={(time) => this.seekTo(time)}
-                          max={this.state.status?.position?.duration ?? 0}></Scrubber>
+                          max={this.state.status?.position?.duration ?? 0}/>
             </div>
             <span className="playback-runtime">{formatTime(this.state.status?.position?.duration)}</span>
         </div>;
