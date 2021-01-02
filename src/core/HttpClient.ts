@@ -2,7 +2,10 @@ import {from, Observable} from "rxjs";
 
 export class HttpClient {
 
-    get(url: string, options: any): Observable<any> {
+    get(url: string, options: { params?: HttpParams }): Observable<any> {
+        if(options.params) {
+            url += "?" + options.params.toUrl()
+        }
         return this.fetch(url);
     }
 
@@ -22,14 +25,14 @@ export class HttpClient {
 }
 
 export class HttpParams {
-    private params: { [key: string]: string[] } = {};
+    private params: { [key: string]: string } = {};
 
     append(key: string, value: string): HttpParams {
-        if (key in this.params) {
-            this.params[key].push(value);
-        } else {
-            this.params[key] = [value];
-        }
+        this.params[key] = value;
         return this;
+    }
+
+    toUrl() : string{
+        return Object.entries(this.params).map(parts => parts.map(encodeURIComponent).join("=")).join("&")
     }
 }
