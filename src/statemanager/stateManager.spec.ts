@@ -1,4 +1,5 @@
 import {createStateManager, StateManager} from "./stateManager";
+import {create} from "domain";
 
 /**
  * Creates a manager for a given state, applies the mutation, and verifies the resulting state to match the expected state, as well
@@ -214,4 +215,18 @@ test('Event handling on arrays', () => {
 
     expect(handler2).toBeCalledWith(2, 1);
     expect(handler2).toBeCalledTimes(1);
+})
+
+test('path() returns property path', () => {
+    const mgr = createStateManager({
+        someObject: {
+            someArray: [
+                0
+            ]
+        }
+    }, () => {}).proxy();
+
+    expect(mgr.someObject().path()).toEqual(".someObject");
+    expect(mgr.someObject.someArray().path()).toEqual(".someObject.someArray");
+    expect(mgr.someObject.someArray[0]().path()).toEqual(".someObject.someArray[0]");
 })

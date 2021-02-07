@@ -56,6 +56,22 @@ mgr.get() // returns "5"
 mgr.set("4") // prints 4 (as a number)
 ```
 
+## Validation
+
+The validation framework leverages the State Manager to make it easy to define validation rules in a declarative and
+typesafe way. It takes a state object consisting of a `value` and pre-existing `validationResults`, a function that is
+used to define the validation rules, and a change handler.
+
+```typescript
+const v = withValidation({ value: { someField: 5}, validationResults: [] }, ({ensure}, value) => {
+    ensure(value.someField).displayName("Some field").min(1);
+}, (newState, validationResults) => {
+    console.log(newState, validationResults);
+});
+
+v.proxy().someField().set(0); // prints {someField: 0}, [{ property: ".someField", message: "Some field should be minimum 1"}]
+```
+
 ## Form Building
 
 The `bindInput` and its variants return the necessary properties to assign to a react node to "bind" that node
