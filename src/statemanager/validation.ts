@@ -18,6 +18,9 @@ export interface Expectation<V> {
     withMessage(message: string): Expectation<V>;
 }
 
+export type ValidatedStateManager<T> = StateManager<T, {validationResults: ValidationResults}>;
+export type ValidatedStateManagerProxy<T> = StateManagerProxy<T, {validationResults: ValidationResults}>;
+
 export interface FieldValidator<V> {
     satisfies(condition: (value: V) => boolean): Expectation<V>;
     min(value: V): Expectation<V>
@@ -123,13 +126,13 @@ export function withValidation<T>({
     }, stateManager.proxy());
 
     return {
-        validate() {
+        validate() : ValidationResults {
             return conditions.reduce((r, c) => c.handler(r), [] as ValidationResults);
         },
-        proxy() : StateManagerProducer<T, {validationResults: ValidationResults}> {
+        proxy() : ValidatedStateManagerProxy<T> {
             return stateManager.proxy()
         },
-        stateManager() : StateManager<T, {validationResults: ValidationResults}> {
+        stateManager() : ValidatedStateManager<T> {
             return stateManager;
         }
     };

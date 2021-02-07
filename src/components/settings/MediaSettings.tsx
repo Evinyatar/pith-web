@@ -1,8 +1,10 @@
 import {PithClientService, PithSettings} from "../../core/pith-client.service";
-import {bindInput, NumberTransformer, Scale, StateManagerProxy} from "../../statemanager/stateManager";
+import {NumberTransformer, Scale} from "../../statemanager/stateManager";
 import {LibraryCategorySettings} from "./LibraryCategorySettings";
+import {ValidatedStateManagerProxy} from "../../statemanager/validation";
+import {bindInput} from "../../statemanager/binding";
 
-export function MediaSettings({stateManager, pithClient}: { stateManager: StateManagerProxy<PithSettings>, pithClient: PithClientService }) {
+export function MediaSettings({stateManager, pithClient}: { stateManager: ValidatedStateManagerProxy<PithSettings>, pithClient: PithClientService }) {
     return <>
         <div className="card my-3">
             <div className="card-header">

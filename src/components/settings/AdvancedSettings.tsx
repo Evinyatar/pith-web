@@ -1,7 +1,9 @@
-import {bindInput, NumberTransformer, StateManagerProxy} from "../../statemanager/stateManager";
+import {NumberTransformer} from "../../statemanager/stateManager";
 import {PithClientService, PithSettings} from "../../core/pith-client.service";
+import {ValidatedStateManagerProxy} from "../../statemanager/validation";
+import {bindInput} from "../../statemanager/binding";
 
-export function AdvancedSettings({binder, pithClient}: { binder: StateManagerProxy<PithSettings>, pithClient: PithClientService }) {
+export function AdvancedSettings({binder, pithClient}: { binder: ValidatedStateManagerProxy<PithSettings>, pithClient: PithClientService }) {
     return <>
         <div className="card my-3">
             <div className="card-header">

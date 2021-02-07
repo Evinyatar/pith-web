@@ -2,12 +2,13 @@ import {Component} from "react";
 import {PithClientService, PithSettings} from "../../core/pith-client.service";
 import {Tab, Tabs} from "react-bootstrap";
 import {MediaSettings} from "./MediaSettings";
-import {createStateManager} from "../../statemanager/stateManager";
 import {AdvancedSettings} from "./AdvancedSettings";
 import {IntegrationSettings} from "./IntegrationSettings";
+import {ValidationResults, withValidation} from "../../statemanager/validation";
 
 interface State {
-    settings: PithSettings | undefined;
+    value: PithSettings | undefined;
+    validationResults: ValidationResults
 }
 
 interface Props {
@@ -18,13 +19,14 @@ export class Settings extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            settings: undefined
+            value: undefined,
+            validationResults: []
         }
     }
 
     async componentDidMount() {
         const settings = await this.props.pithClientService.loadSettings().toPromise();
-        this.setState({settings});
+        this.setState({value: settings, validationResults: []});
     }
 
     save(settings: PithSettings) {
@@ -32,12 +34,14 @@ export class Settings extends Component<Props, State> {
     }
 
     render() {
-        if(!this.state.settings) {
+        if(!this.state.value) {
             return <></>;
         }
-        const stateManager = createStateManager(this.state.settings, s => this.setState({settings: s})).proxy();
+        const stateManager = withValidation(this.state as {value: PithSettings, validationResults: ValidationResults}, () => {
+
+        }, (state) => this.setState(state)).proxy();
         return <div className="container">
-                <button className="btn btn-primary float-right" onClick={() => this.save(this.state.settings!)}>Save</button>
+                <button className="btn btn-primary float-right" onClick={() => this.save(this.state.value!)}>Save</button>
                 <Tabs defaultActiveKey="media" id="settingsTabPanel">
                     <Tab eventKey="media" title="Media">
                         <MediaSettings stateManager={stateManager} pithClient={this.props.pithClientService} />

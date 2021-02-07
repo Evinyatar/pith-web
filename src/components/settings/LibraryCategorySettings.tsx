@@ -1,7 +1,8 @@
 import {PithClientService, PithSettings} from "../../core/pith-client.service";
-import {bindCheckbox, bindInput, StateManagerProxy} from "../../statemanager/stateManager";
+import {StateManagerProxy} from "../../statemanager/stateManager";
 import {useState} from "react";
 import {ContainerChooser} from "./ContainerChooser";
+import {bindCheckbox, bindInput} from "../../statemanager/binding";
 
 export function LibraryCategorySettings({binder, pithClient}: { binder: StateManagerProxy<PithSettings>, pithClient: PithClientService }) {
     function removeLibraryContainer(folder: number) {

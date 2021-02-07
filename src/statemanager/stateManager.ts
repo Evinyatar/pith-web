@@ -192,21 +192,3 @@ export function createStateManager<V, T extends object | Array<V>, X>(state: T, 
 
     return decorator(stateManager);
 }
-
-export function bindInput<T>(p: StateManager<T>) {
-    return {
-        onChange(evt: ChangeEvent<Element & { value: T }>) {
-            return p.set(evt.target.value);
-        },
-        value: p.get()
-    };
-}
-
-export function bindCheckbox(p: BaseStateManager<boolean>) {
-    return {
-        onChange(evt: ChangeEvent<HTMLInputElement>) {
-            return p.set(evt.target.checked);
-        },
-        checked: p.get()
-    };
-}

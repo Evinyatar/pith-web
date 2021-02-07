@@ -1,5 +1,6 @@
-import {bindCheckbox, bindInput, StateManagerProxy} from "../../statemanager/stateManager";
 import {PithClientService, PithSettings} from "../../core/pith-client.service";
+import {ValidatedStateManagerProxy} from "../../statemanager/validation";
+import {bindCheckbox, bindInput} from "../../statemanager/binding";
 
 function getSonarSettingsUrl(settings: PithSettings) {
     var url = settings.sonarr.url;
@@ -19,7 +20,7 @@ function getCouchpotatoSettingsUrl(settings: PithSettings) {
     return url;
 }
 
-export function IntegrationSettings({binder, pithClient}: { binder: StateManagerProxy<PithSettings>, pithClient: PithClientService }) {
+export function IntegrationSettings({binder, pithClient}: { binder: ValidatedStateManagerProxy<PithSettings>, pithClient: PithClientService }) {
     const sonarSettingsUrl = getSonarSettingsUrl(binder().get());
     const couchpotatoSettingsUrl = getCouchpotatoSettingsUrl(binder().get());
     return <>
