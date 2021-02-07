@@ -1,4 +1,6 @@
-import {ChangeEvent} from "react";
+import {ChangeEvent, memo} from "react";
+import {EventEmitter, Subscription} from "./event";
+import {memoize} from "./memoize";
 
 export type StateManagerProducer<T> = () => StateManager<T>
 
@@ -26,6 +28,7 @@ export interface BaseStateManager<T> {
     set(t: T): void
     transform<V>(t: Transformer<T, V>): StateManager<V>
     proxy(): StateManagerProxy<T>
+    subscribe(handler: (newValue: T, oldValue: T) => void): Subscription;
 }
 
 export interface ObjectStateManager<T> extends BaseStateManager<T> {
@@ -74,17 +77,23 @@ export function Scale(factor: number): Transformer<number, number> {
 export function createStateManager<V>(state: V[], onChange: (newState: V[]) => void): ArrayStateManager<V[]>
 export function createStateManager<T>(state: T, onChange: (newState: T) => void): ObjectStateManager<T>
 export function createStateManager<V, T extends object | Array<V>>(state: T, onChange: (newState: T) => void): any {
+    const emitter = new EventEmitter<[T, T]>();
     if (Array.isArray(state)) {
         const arrState = state as V[] & T;
+        const m = memoize();
         return {
             get(): T {
                 return state;
             },
             atIndex(idx: number): StateManager<V> {
-                return createStateManager(state[idx], v => this.replace(idx, v)) as StateManager<V>;
+                return m(idx, () => createStateManager(state[idx], v => this.replace(idx, v))) as StateManager<V>;
             },
             set(newValue: T) {
+                emitter.emit(newValue, state);
                 onChange(newValue);
+            },
+            subscribe(handler: (newValue: T, oldValue: T) => void) : Subscription {
+                return emitter.subscribe(handler);
             },
             transform<V>(t: Transformer<T, V>): StateManager<V> {
                 return createStateManager(t.toView(state), (v) => onChange(t.fromView(v))) as StateManager<V>;
@@ -116,7 +125,7 @@ export function createStateManager<V, T extends object | Array<V>>(state: T, onC
             },
             replace(index: number, value: V) {
                 const newArray = [...arrState.slice(0, index), value, ...arrState.slice(index + 1)];
-                onChange(newArray as T);
+                this.set(newArray as T);
             },
             map<R>(cb: (mgr: StateManager<V>, idx: number) => R): R[] {
                 return arrState.map((v, idx) => {
@@ -128,28 +137,33 @@ export function createStateManager<V, T extends object | Array<V>>(state: T, onC
                 return this.map((m: StateManager<V>) => m).filter((m: StateManager<V>, idx: number) => predicate(m.get(), idx));
             },
             push(v: V) {
-                onChange([...state as V[], v as V] as T);
+                this.set([...state as V[], v as V] as T);
             },
             pop() {
-                onChange([...state.slice(0, state.length - 1)] as T);
+                this.set([...state.slice(0, state.length - 1)] as T);
             },
             slice(startIdx: number, endIndex?: number) {
                 return this.map((m: StateManager<V>) => m).slice(startIdx, endIndex);
             },
             splice(startIdx: number, count: number, ...insert: V[]) {
-                onChange([...arrState.slice(0, startIdx), ...insert, ...arrState.slice(startIdx + count)] as T);
+                this.set([...arrState.slice(0, startIdx), ...insert, ...arrState.slice(startIdx + count)] as T);
             }
         };
     } else {
+        const m = memoize();
         return {
             get(): T {
                 return state;
             },
             set(newValue: T) {
+                emitter.emit(newValue, state);
                 onChange(newValue);
             },
+            subscribe(handler: (newValue: T, oldValue: T) => void) : Subscription {
+                return emitter.subscribe(handler);
+            },
             atKey<K extends keyof T>(key: K): StateManager<T[K]> {
-                return createStateManager(state[key], (newState) => this.set({...state, [key]: newState})) as StateManager<T[K]>;
+                return m(key, () => createStateManager(state[key], (newState) => this.set({...state, [key]: newState}))) as StateManager<T[K]>;
             },
             transform<V>(t: Transformer<T, V>): StateManager<V> {
                 return createStateManager(t.toView(state), (v) => onChange(t.fromView(v))) as StateManager<V>;

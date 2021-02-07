@@ -163,3 +163,55 @@ test('Array proxy splice', () => {
         [{c:1, d: false}, {c:4}]
     )
 })
+
+test('Event handling on objects', () => {
+    const onChange = jest.fn();
+    const handler = jest.fn();
+    const handler2 = jest.fn();
+
+    const mgr = createStateManager({
+        x: {y: 0}
+    }, onChange);
+
+    mgr.subscribe(handler);
+    mgr.proxy().x.y().subscribe(handler2);
+
+    mgr.proxy().x.y().set(2);
+
+    expect(onChange).toBeCalledWith({
+        x: {y: 2}
+    });
+    expect(onChange).toBeCalledTimes(1);
+
+    expect(handler).toBeCalledWith({
+        x: {y: 2}
+    }, {
+        x: {y: 0}
+    });
+    expect(handler).toBeCalledTimes(1);
+
+    expect(handler2).toBeCalledWith(2, 0);
+    expect(handler2).toBeCalledTimes(1);
+})
+
+test('Event handling on arrays', () => {
+    const onChange = jest.fn();
+    const handler = jest.fn();
+    const handler2 = jest.fn();
+
+    const mgr = createStateManager([[1]], onChange);
+
+    mgr.subscribe(handler);
+    mgr.proxy()[0][0]().subscribe(handler2);
+
+    mgr.atIndex(0).atIndex(0).set(2);
+
+    expect(onChange).toBeCalledWith([[2]]);
+    expect(onChange).toBeCalledTimes(1);
+
+    expect(handler).toBeCalledWith([[2]], [[1]]);
+    expect(handler).toBeCalledTimes(1);
+
+    expect(handler2).toBeCalledWith(2, 1);
+    expect(handler2).toBeCalledTimes(1);
+})
