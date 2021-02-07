@@ -165,3 +165,19 @@ test("withMessasge", () => {
         message: "Make some value > 10, or else..."
     }]);
 })
+
+test("Validation results stored on stateManager", () => {
+    let v = withValidation({value: {someValue: 1}, validationResults: [{
+            property: ".someValue",
+            message: "Make some value > 10, or else..."
+        }]}, ({ensure}, value) => {
+        ensure(value.someValue).min(10).withMessage("Make some value > 10, or else...");
+    }, () => {});
+
+    const t = v.stateManager();
+
+    expect(t.proxy().someValue().validationResults).toEqual([{
+        property: ".someValue",
+        message: "Make some value > 10, or else..."
+    }]);
+});

@@ -1,50 +1,52 @@
-import {ChangeEvent, memo} from "react";
+import {ChangeEvent} from "react";
 import {EventEmitter, Subscription} from "./event";
 import {memoize} from "./memoize";
 import {PropertyPath} from "./validation";
 
-export type StateManagerProducer<T> = () => StateManager<T>
+type Decorator<X> = <T>(stateManager: StateManager<T, any>) => StateManager<T, X>;
 
-export type StateManagerProxy<T> = T extends undefined ? undefined : T extends Array<any> ? ArrayStateManagerProxy<T[0]> : T extends object ? ObjectStateManagerProxy<T> : StateManagerProducer<T>
+export type StateManagerProducer<T, X = {}> = () => StateManager<T, X>
 
-export type ArrayStateManagerProxy<V> = {
-    [idx: number]: StateManagerProxy<V>
-    map<R>(consumer: (stateManager: StateManagerProxy<V>, idx: number) => R): R[]
-    filter(predicate: (value: V, idx: number) => boolean): ReadonlyArray<StateManagerProxy<V>>
+export type StateManagerProxy<T, X = {}> = T extends undefined ? undefined : T extends Array<any> ? ArrayStateManagerProxy<T[0], X> : T extends object ? ObjectStateManagerProxy<T, keyof T, X> : StateManagerProducer<T, X>
+
+export type ArrayStateManagerProxy<V, X> = {
+    [idx: number]: StateManagerProxy<V, X>
+    map<R>(consumer: (stateManager: StateManagerProxy<V, X>, idx: number) => R): R[]
+    filter(predicate: (value: V, idx: number) => boolean): ReadonlyArray<StateManagerProxy<V, X>>
     push(value: V): void
     pop(): void
-    slice(startIdx: number, endIdx?: number): ReadonlyArray<StateManagerProxy<V>>
+    slice(startIdx: number, endIdx?: number): ReadonlyArray<StateManagerProxy<V, X>>
     splice(startIdx: number, length: number, ...insert: V[]): void
 
-} & StateManagerProducer<V[]>
+} & StateManagerProducer<V[], X>
 
-export type ObjectStateManagerProxy<T, K extends keyof T = keyof T> = {
-    [P in K]: StateManagerProxy<T[P]>
-} & StateManagerProducer<T>;
+export type ObjectStateManagerProxy<T, K extends keyof T = keyof T, X = {}> = {
+    [P in K]: StateManagerProxy<T[P], X>
+} & StateManagerProducer<T, X>;
 
-export type StateManager<T> = T extends Array<any> ? ArrayStateManager<T> : T extends object ? ObjectStateManager<T> : BaseStateManager<T>;
+export type StateManager<T, X = {}> = T extends Array<any> ? ArrayStateManager<T, X> : T extends object ? ObjectStateManager<T, X> : BaseStateManager<T, X>;
 
-export interface BaseStateManager<T> {
+export type BaseStateManager<T, X = {}> = {
     get(): T
     set(t: T): void
-    transform<V>(t: Transformer<T, V>): StateManager<V>
-    proxy(): StateManagerProxy<T>
-    subscribe(handler: (newValue: T, oldValue: T) => void): Subscription;
+    transform<V>(t: Transformer<T, V>): StateManager<V, X>
+    proxy(): StateManagerProxy<T, X>
+    subscribe(handler: (newValue: T, oldValue: T) => void): Subscription
     path(): PropertyPath
+} & X
+
+export type ObjectStateManager<T, X> = BaseStateManager<T, X> & {
+    atKey<K extends keyof T>(key: K): StateManager<T[K], X>
 }
 
-export interface ObjectStateManager<T> extends BaseStateManager<T> {
-    atKey<K extends keyof T>(key: K): StateManager<T[K]>
-}
-
-export interface ArrayStateManager<T extends Array<any>> extends BaseStateManager<T> {
-    map<R>(cb: (mgr: StateManager<T[0]>) => R): R[]
-    atIndex(idx: number): StateManager<T[0]>
+export type ArrayStateManager<T extends Array<any>, X> = BaseStateManager<T, X> & {
+    map<R>(cb: (mgr: StateManager<T[0], X>) => R): R[]
+    atIndex(idx: number): StateManager<T[0], X>
     replace(idx: number, value: T): void
-    filter(predicate: (value: T[0], idx: number) => boolean): StateManager<T[0]>[]
+    filter(predicate: (value: T[0], idx: number) => boolean): StateManager<T[0], X>[]
     push(value: T[0]): void
     pop(): void
-    slice(startIdx: number, endIdx?: number): ReadonlyArray<StateManager<T[0]>>
+    slice(startIdx: number, endIdx?: number): ReadonlyArray<StateManager<T[0], X>>
     splice(startIdx: number, length: number, ...insert: T): void
 }
 
@@ -76,19 +78,20 @@ export function Scale(factor: number): Transformer<number, number> {
     };
 }
 
-export function createStateManager<V>(state: V[], onChange: (newState: V[]) => void, name?: string): ArrayStateManager<V[]>
-export function createStateManager<T>(state: T, onChange: (newState: T) => void, name?: string): ObjectStateManager<T>
-export function createStateManager<V, T extends object | Array<V>>(state: T, onChange: (newState: T) => void, name: string = ""): any {
+export function createStateManager<V, X>(state: V[], onChange: (newState: V[]) => void, name?: string, decorator?: Decorator<X>): ArrayStateManager<V[], X>
+export function createStateManager<T, X>(state: T, onChange: (newState: T) => void, name?: string, decorator?: Decorator<X>): ObjectStateManager<T, X>
+export function createStateManager<V, T extends object | Array<V>, X>(state: T, onChange: (newState: T) => void, name: string = "", decorator: Decorator<X> = t=>t): any {
     const emitter = new EventEmitter<[T, T]>();
+    let stateManager;
     if (Array.isArray(state)) {
         const arrState = state as V[] & T;
         const m = memoize();
-        return {
+        stateManager = {
             get(): T {
                 return state;
             },
-            atIndex(idx: number): StateManager<V> {
-                return m(idx, () => createStateManager(state[idx], v => this.replace(idx, v), `${name}[${idx}]`)) as StateManager<V>;
+            atIndex(idx: number): StateManager<V, X> {
+                return m(idx, () => createStateManager(state[idx], v => this.replace(idx, v), `${name}[${idx}]`, decorator)) as StateManager<V, X>;
             },
             set(newValue: T) {
                 emitter.emit(newValue, state);
@@ -97,21 +100,21 @@ export function createStateManager<V, T extends object | Array<V>>(state: T, onC
             subscribe(handler: (newValue: T, oldValue: T) => void) : Subscription {
                 return emitter.subscribe(handler);
             },
-            transform<V>(t: Transformer<T, V>): StateManager<V> {
-                return createStateManager(t.toView(state), (v) => onChange(t.fromView(v))) as StateManager<V>;
+            transform<V>(t: Transformer<T, V>): StateManager<V, X> {
+                return createStateManager(t.toView(state), (v) => onChange(t.fromView(v)), name, decorator) as StateManager<V, X>;
             },
             proxy() {
                 const base = () => this;
                 Object.assign(base, {
-                    map: <R>(cb: (m: StateManagerProxy<V>, idx: number) => R) => {
-                        return this.map((m: StateManager<V>, idx: number) => cb(m.proxy(), idx));
+                    map: <R>(cb: (m: StateManagerProxy<V, X>, idx: number) => R) => {
+                        return this.map((m: StateManager<V, X>, idx: number) => cb(m.proxy(), idx));
                     },
-                    filter: (predicate: (m: V, idx: number) => boolean): StateManagerProxy<V>[] => {
+                    filter: (predicate: (m: V, idx: number) => boolean): StateManagerProxy<V, X>[] => {
                         return this.filter(predicate).map((m: StateManager<V>) => m.proxy());
                     },
                     push: (v: V) => this.push(v),
                     pop: () => this.pop(),
-                    slice: (startIdx: number, endIndex?: number) => this.slice(startIdx, endIndex).map((m: StateManager<V>) => m.proxy()),
+                    slice: (startIdx: number, endIndex?: number) => this.slice(startIdx, endIndex).map((m: StateManager<V, X>) => m.proxy()),
                     splice: (startIdx: number, count: number, ...newValues: V[]) => this.splice(startIdx, count, ...newValues)
                 });
                 return new Proxy(base, {
@@ -131,12 +134,12 @@ export function createStateManager<V, T extends object | Array<V>>(state: T, onC
             },
             map<R>(cb: (mgr: StateManager<V>, idx: number) => R): R[] {
                 return arrState.map((v, idx) => {
-                    let mgr = createStateManager(v, (newV) => this.replace(idx, newV));
-                    return cb(mgr as StateManager<V>, idx);
+                    let mgr = createStateManager(v, (newV) => this.replace(idx, newV), `${name}[${idx}]`, decorator) as StateManager<V, X>;
+                    return cb(mgr, idx);
                 });
             },
             filter(predicate: (v: V, idx: number) => boolean): StateManager<V>[] {
-                return this.map((m: StateManager<V>) => m).filter((m: StateManager<V>, idx: number) => predicate(m.get(), idx));
+                return this.map((m: StateManager<V, X>) => m).filter((m: StateManager<V, X>, idx: number) => predicate(m.get(), idx));
             },
             push(v: V) {
                 this.set([...state as V[], v as V] as T);
@@ -145,7 +148,7 @@ export function createStateManager<V, T extends object | Array<V>>(state: T, onC
                 this.set([...state.slice(0, state.length - 1)] as T);
             },
             slice(startIdx: number, endIndex?: number) {
-                return this.map((m: StateManager<V>) => m).slice(startIdx, endIndex);
+                return this.map((m: StateManager<V, X>) => m).slice(startIdx, endIndex);
             },
             splice(startIdx: number, count: number, ...insert: V[]) {
                 this.set([...arrState.slice(0, startIdx), ...insert, ...arrState.slice(startIdx + count)] as T);
@@ -156,7 +159,7 @@ export function createStateManager<V, T extends object | Array<V>>(state: T, onC
         };
     } else {
         const m = memoize();
-        return {
+        stateManager = {
             get(): T {
                 return state;
             },
@@ -168,10 +171,10 @@ export function createStateManager<V, T extends object | Array<V>>(state: T, onC
                 return emitter.subscribe(handler);
             },
             atKey<K extends keyof T>(key: K): StateManager<T[K]> {
-                return m(key, () => createStateManager(state[key], (newState) => this.set({...state, [key]: newState}), `${name}.${key}`)) as StateManager<T[K]>;
+                return m(key, () => createStateManager(state[key], (newState) => this.set({...state, [key]: newState}), `${name}.${key}`, decorator)) as StateManager<T[K]>;
             },
-            transform<V>(t: Transformer<T, V>): StateManager<V> {
-                return createStateManager(t.toView(state), (v) => onChange(t.fromView(v))) as StateManager<V>;
+            transform<V>(t: Transformer<T, V>): StateManager<V, X> {
+                return createStateManager(t.toView(state), (v) => onChange(t.fromView(v)), name, decorator) as StateManager<V, X>;
             },
             proxy() {
                 const mgr = this;
@@ -179,13 +182,15 @@ export function createStateManager<V, T extends object | Array<V>>(state: T, onC
                     get<P extends keyof T>(target: () => StateManager<T>, p: P): T[P] {
                         return mgr.atKey(p).proxy();
                     }
-                }) as StateManagerProxy<T>;
+                }) as StateManagerProxy<T, X>;
             },
             path() {
                 return name;
             }
         };
     }
+
+    return decorator(stateManager);
 }
 
 export function bindInput<T>(p: StateManager<T>) {

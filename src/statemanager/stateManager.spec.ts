@@ -1,5 +1,6 @@
 import {createStateManager, StateManager} from "./stateManager";
 import {create} from "domain";
+import assert from "assert";
 
 /**
  * Creates a manager for a given state, applies the mutation, and verifies the resulting state to match the expected state, as well
@@ -229,4 +230,20 @@ test('path() returns property path', () => {
     expect(mgr.someObject().path()).toEqual(".someObject");
     expect(mgr.someObject.someArray().path()).toEqual(".someObject.someArray");
     expect(mgr.someObject.someArray[0]().path()).toEqual(".someObject.someArray[0]");
+})
+
+test("Decorator", () => {
+    const decorator = jest.fn().mockImplementation(x => x);
+    const mgr = createStateManager({
+        someObject: {
+            someArray: [
+                0
+            ]
+        }
+    }, () => {}, "root", decorator);
+
+    mgr.proxy().someObject.someArray();
+
+    expect(decorator).toBeCalledWith(mgr.atKey("someObject"));
+    expect(decorator).toBeCalledWith(mgr.atKey("someObject").atKey("someArray"));
 })

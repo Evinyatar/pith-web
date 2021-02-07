@@ -1,5 +1,4 @@
 import {createStateManager, StateManager, StateManagerProducer, StateManagerProxy} from "./stateManager";
-import {min} from "rxjs/operators";
 
 export type PropertyPath = string;
 
@@ -47,6 +46,13 @@ export function withValidation<T>({
             value,
             validationResults: incrementalValidationResults
         });
+    }, "", (stateManager) => {
+        return {
+            ...stateManager,
+            get validationResults() : ValidationResults {
+                return incrementalValidationResults.filter(r => r.property === this.path());
+            }
+        }
     });
 
     const addValidator = <V>(accessor: StateManager<V>, validator: (value: V) => boolean, message: string) : Expectation<V> => {
@@ -120,10 +126,10 @@ export function withValidation<T>({
         validate() {
             return conditions.reduce((r, c) => c.handler(r), [] as ValidationResults);
         },
-        proxy() {
+        proxy() : StateManagerProducer<T, {validationResults: ValidationResults}> {
             return stateManager.proxy()
         },
-        stateManager() {
+        stateManager() : StateManager<T, {validationResults: ValidationResults}> {
             return stateManager;
         }
     };
