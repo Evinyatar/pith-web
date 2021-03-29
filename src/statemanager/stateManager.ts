@@ -1,4 +1,3 @@
-import {ChangeEvent} from "react";
 import {EventEmitter, Subscription} from "./event";
 import {memoize} from "./memoize";
 import {PropertyPath} from "./validation";

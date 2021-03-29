@@ -65,10 +65,10 @@ export class ContainerDetails extends Component<ChannelBrowserProps, State> {
                 filteredContents: this.state.contents
             });
         } else {
-            const filter = ((i: any) => i.title.toLocaleLowerCase().indexOf(value.toLocaleLowerCase()) != -1);
+            const filter = ((i: any) => i.title.toLocaleLowerCase().indexOf(value.toLocaleLowerCase()) !== -1);
             const currentSearch = this.state.searchString;
             let filteredContents;
-            if (!forceFull && currentSearch && value.indexOf(currentSearch) != -1) {
+            if (!forceFull && currentSearch && value.indexOf(currentSearch) !== -1) {
                 filteredContents = this.state.filteredContents.filter(filter);
             } else {
                 filteredContents = this.state.contents.filter(filter);
@@ -142,7 +142,7 @@ export class ContainerDetails extends Component<ChannelBrowserProps, State> {
                             <Link className="c-contentBrowser__itemPresentation" to={`/channel/${this.props.channel.id}/${item.id}`}>
                                 {item.poster && <div className="c-contentBrowser__poster"
                                                      style={{backgroundImage: `url(${prescale(item.poster, '130x195')})`}}/>}
-                                {item.still && !item.poster && <img className="c-contentBrowser__still"
+                                {item.still && !item.poster && <img className="c-contentBrowser__still" alt="still"
                                                                     src={prescale(item.still, '266x150')}/>}
 
                                 <span className="c-contentBrowser__itemInfo">

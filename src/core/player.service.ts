@@ -1,5 +1,5 @@
 import {Channel, ChannelItem, PithClientService, Player, RemotePlayer} from './pith-client.service';
-import {BehaviorSubject, Subject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 
 const SELECTED_PLAYER_STORAGE_ITEM = 'selectedPlayer';
 

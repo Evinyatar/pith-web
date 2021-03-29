@@ -1,7 +1,7 @@
 import {Component} from "react";
 import {Dropdown} from "react-bootstrap";
 import {HttpClient} from "../core/HttpClient";
-import {Channel, PithClientService, Player, PlayerStatus} from "../core/pith-client.service";
+import {Channel, PithClientService, Player} from "../core/pith-client.service";
 import {PithEventsService} from "../core/pith-events.service";
 import {PlayerService} from "../core/player.service";
 import {classNames} from "../util";
