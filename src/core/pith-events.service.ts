@@ -34,6 +34,7 @@ export class PithEventsService {
         ws.onopen = () => {
             console.log("Event server connection successful!");
             this.ready = true;
+            this.trigger("connectionChanged", {connected: true});
             this.events.forEach((subject, event) => {
                 this.registerEvent(event);
             });
@@ -46,11 +47,16 @@ export class PithEventsService {
 
         ws.onclose = () => {
             console.log("Connection to event server lost");
+            this.trigger("connectionChanged", {connected: false});
             this.ready = false;
             setTimeout(() => {
                 this.connect();
             }, retryInterval);
         };
+
+        ws.onerror = (error) => {
+            console.log("Connection to event server errored", error);
+        }
     }
 
     public close() {

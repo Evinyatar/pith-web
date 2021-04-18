@@ -8,20 +8,7 @@ export class PlayerService {
     readonly playersSubject: BehaviorSubject<Player[]> = new BehaviorSubject<Player[]>([]);
 
     constructor(private pith: PithClientService) {
-        this.pith.queryPlayers().subscribe(p => {
-            this.playersSubject.next(p);
-            if (this.activePlayerSubject.getValue() == null && p.length > 0) {
-                let selectedPlayer = localStorage.getItem(SELECTED_PLAYER_STORAGE_ITEM);
-                let player: Player | undefined;
-                if (selectedPlayer) {
-                    player = p.find(p => p.id === selectedPlayer);
-                }
-                if (!player) {
-                    player = p[0];
-                }
-                this.selectPlayer(player);
-            }
-        });
+        this.refreshPlayerList();
 
         this.pith.on('playerregistered').subscribe(([event]) => {
             const player = new RemotePlayer(this.pith, event.player);
@@ -30,7 +17,7 @@ export class PlayerService {
             if (!this.activePlayerSubject.getValue()) {
                 this.selectPlayer(player);
             }
-        });
+        })
 
         this.pith.on('playerdisappeared').subscribe(([event]) => {
             const player = event.player;
@@ -43,6 +30,29 @@ export class PlayerService {
                 } else {
                     this.selectPlayer(null);
                 }
+            }
+        })
+
+        this.pith.on('connectionChanged').subscribe(({connected}) => {
+            if(connected) {
+                this.refreshPlayerList();
+            }
+        })
+    }
+
+    private refreshPlayerList() {
+        this.pith.queryPlayers().subscribe(p => {
+            this.playersSubject.next(p);
+            if (this.activePlayerSubject.getValue() == null && p.length > 0) {
+                let selectedPlayer = localStorage.getItem(SELECTED_PLAYER_STORAGE_ITEM);
+                let player: Player | undefined;
+                if (selectedPlayer) {
+                    player = p.find(p => p.id === selectedPlayer);
+                }
+                if (!player) {
+                    player = p[0];
+                }
+                this.selectPlayer(player);
             }
         });
     }
